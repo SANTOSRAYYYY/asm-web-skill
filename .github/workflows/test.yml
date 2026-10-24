@@ -22,10 +22,10 @@ jobs:
       - name: Doctor
         run: python scripts/asmweb.py doctor
 
-      - name: Build, verify with Unicorn
+      - name: Build engine demo, verify with Unicorn
         run: python scripts/asmweb.py build assets/example/index.html -o dist --v40 --minify --emulate
 
-      - name: Extract and inspect QR payload
+      - name: Extract and inspect engine QR
         run: |
           python scripts/asmweb.py extract dist/index.png -o dist/extracted.elf --html dist/extracted.html
           cmp dist/index.elf dist/extracted.elf
@@ -33,16 +33,35 @@ jobs:
           python scripts/asmweb.py inspect dist/index.elf --html dist/inspected.html --no-disasm
           cmp dist/index.page.html dist/inspected.html
 
-      - name: Run natively on Linux
+      - name: Build all personal themes, verify with Unicorn
         run: |
-          chmod +x dist/index.elf
-          ./dist/index.elf &
+          set -euo pipefail
+          for theme in terminal brutalist editorial blueprint; do
+            python scripts/asmweb.py personal assets/example/profile.json \
+              --theme "$theme" -o "dist/personal/$theme" --emulate
+          done
+
+      - name: Extract and inspect personal QR
+        run: |
+          python scripts/asmweb.py extract dist/personal/terminal/terminal.png \
+            -o dist/personal/terminal/extracted.elf \
+            --html dist/personal/terminal/extracted.html
+          cmp dist/personal/terminal/terminal.elf dist/personal/terminal/extracted.elf
+          cmp dist/personal/terminal/terminal.page.html dist/personal/terminal/extracted.html
+          python scripts/asmweb.py inspect dist/personal/terminal/terminal.elf \
+            --html dist/personal/terminal/inspected.html --no-disasm
+          cmp dist/personal/terminal/terminal.page.html dist/personal/terminal/inspected.html
+
+      - name: Run a personal theme natively on Linux
+        run: |
+          chmod +x dist/personal/terminal/terminal.elf
+          ./dist/personal/terminal/terminal.elf &
           pid=$!
           sleep 0.5
-          python scripts/native_test.py dist/index.page.html
+          python scripts/native_test.py dist/personal/terminal/terminal.page.html
           kill $pid || true
 
       - name: Show ELF
         run: |
-          file dist/index.elf
-          readelf -h -l dist/index.elf
+          file dist/personal/terminal/terminal.elf
+          readelf -h -l dist/personal/terminal/terminal.elf

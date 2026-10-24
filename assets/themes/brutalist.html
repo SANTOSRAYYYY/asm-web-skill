@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{NAME}} · {{ROLE}}</title>
+<style>
+:root{--bg:#f1f0ea;--fg:#0a0a0a;--a:#ff3b00;--dim:#5b5b56;--line:#0a0a0a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 Arial,Helvetica,sans-serif;overflow-x:hidden}
+.wrap{width:min(94vw,1120px);margin:auto;padding:0 0 50px}
+header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 0;border-bottom:3px solid var(--line)}
+.logo{font:900 18px/1 Arial,sans-serif;letter-spacing:-.04em;text-decoration:none;color:var(--fg)}
+.logo i{font-style:normal;color:var(--a)}
+nav{display:flex;gap:16px;font:700 10px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}
+nav a{color:var(--fg);text-decoration:none;border-bottom:2px solid transparent}
+nav a:hover{border-color:var(--a)}
+.hero{display:grid;grid-template-columns:1fr auto;gap:clamp(24px,5vw,60px);align-items:center;padding:clamp(40px,7vw,76px) 0 36px}
+.kicker{display:inline-block;margin:0 0 14px;padding:5px 8px;background:var(--fg);color:var(--bg);font:700 10px/1 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase}
+h1{margin:0 0 16px;font:900 clamp(54px,11vw,140px)/.84 Arial,Helvetica,sans-serif;letter-spacing:-.075em;text-transform:uppercase}
+h1 span{display:block;color:var(--a)}
+.tag{margin:0 0 18px;font:900 clamp(22px,3.4vw,34px)/1.05 Arial,sans-serif;letter-spacing:-.04em}
+.lede{max-width:52ch;margin:0;color:var(--dim);font-size:15px}
+.portrait-box{padding:9px;background:#0a0a0a;border:3px solid var(--line);box-shadow:14px 14px 0 var(--a);animation:stamp .7s both}
+.portrait{display:block;margin:0;color:#f1f0ea;font:600 7px/1 ui-monospace,monospace;white-space:pre;overflow:hidden}
+.marquee{overflow:hidden;border-top:3px solid var(--line);border-bottom:3px solid var(--line);background:var(--fg);color:var(--bg);white-space:nowrap}
+.marquee div{display:inline-block;padding:10px 0;font:800 11px/1 ui-monospace,monospace;letter-spacing:.14em;animation:marquee 22s linear infinite}
+.marquee b{color:var(--a);font-weight:800}
+section{padding:44px 0;border-bottom:3px solid var(--line)}
+h2{margin:0 0 20px;font:900 12px/1 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}
+h2 span{color:var(--a)}
+.work{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.project{display:block;padding:18px;border:3px solid var(--line);background:var(--bg);color:var(--fg);text-decoration:none;transition:background .15s,color .15s;animation:slam .55s both}
+.project:nth-child(2){animation-delay:.06s}.project:nth-child(3){animation-delay:.12s}.project:nth-child(4){animation-delay:.18s}.project:nth-child(5){animation-delay:.24s}
+.project:hover{background:var(--fg);color:var(--bg)}
+.project small{display:block;margin-bottom:14px;color:var(--a);font:800 10px/1 ui-monospace,monospace;letter-spacing:.12em}
+.project h3{margin:0 0 8px;font:900 22px/1.05 Arial,sans-serif;letter-spacing:-.04em}
+.project p{margin:0;color:inherit;font-size:12px;line-height:1.55;opacity:.75}
+.about p{max-width:66ch;margin:0 0 12px;color:var(--dim)}
+.skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.skill{padding:5px 7px;border:2px solid var(--line);font:700 9px/1 ui-monospace,monospace}
+.links{display:flex;flex-wrap:wrap;gap:18px}
+.link{display:inline-flex;gap:7px;align-items:baseline;padding-bottom:3px;border-bottom:3px solid var(--line);color:var(--fg);text-decoration:none;font:800 12px/1.4 ui-monospace,monospace}
+.link:hover{border-color:var(--a);color:var(--a)}
+.link em{color:var(--dim);font:400 11px/1.4 Arial,sans-serif;font-style:normal}
+.link b{color:var(--a);font-weight:800}
+footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:22px;color:var(--dim);font:700 9px/1.5 ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase}
+footer b{color:var(--fg);font-variant-numeric:tabular-nums}
+@keyframes marquee{to{transform:translateX(-50%)}}
+@keyframes slam{from{opacity:0;transform:translateY(24px) rotate(-.4deg)}to{opacity:1;transform:none}}
+@keyframes stamp{from{opacity:0;transform:rotate(-2deg) scale(.96)}to{opacity:1;transform:none}}
+@media(max-width:760px){.hero{grid-template-columns:1fr}.portrait-box{width:fit-content}.work{grid-template-columns:1fr}.portrait{font-size:5px}header{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><a class="logo" href="#">{{NAME}}<i> / </i>{{HANDLE}}</a><nav><a href="#work">Work</a><a href="#about">About</a><a href="#contact">Contact</a></nav></header>
+<section class="hero">
+  <div><p class="kicker">{{ROLE}}</p><h1>{{HANDLE}}<span>{{NAME}}</span></h1><p class="tag">{{TAGLINE}}</p><p class="lede">{{BIO}}</p></div>
+  <div class="portrait-box">{{PORTRAIT}}</div>
+</section>
+<div class="marquee"><div>{{ROLE}} · {{STATUS}} · {{LOCATION}} · <b>3KB</b> · {{ROLE}} · {{STATUS}} · {{LOCATION}} · <b>3KB</b> · </div></div>
+<section id="work"><h2>Selected work <span>/ {{YEAR}}</span></h2><div class="work">{{FEATURED_PROJECTS}}</div></section>
+<section id="about" class="about"><h2>About</h2>{{ABOUT_SHORT}}</section>
+<section id="contact"><h2>Contact</h2><div class="links">{{LINKS}}</div><div class="skills">{{SKILLS}}</div></section>
+<footer><span>{{NAME}} · {{ROLE}}</span><span>{{STATUS}} · <b id="clock">--:--:--</b> · {{YEAR}}</span></footer>
+</div>
+{{CLOCK_SCRIPT}}
+</body>
+</html>

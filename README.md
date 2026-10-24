@@ -4,9 +4,10 @@
 
 把会动的网页、113 字节的汇编服务器和一张 v40 二维码，塞进 **2,920 字节**。
 
-![ELF](https://img.shields.io/badge/ELF-2%2C916_B-33ff99)
+![ELF](https://img.shields.io/badge/ELF-2%2C920_B-33ff99)
 ![asm](https://img.shields.io/badge/x86__64_asm-113_B-5ce1ff)
 ![QR](https://img.shields.io/badge/QR-v40--L-c084fc)
+![themes](https://img.shields.io/badge/themes-4-ff9e64)
 [![test](https://github.com/SANTOSRAYYYY/asm-web/actions/workflows/test.yml/badge.svg)](https://github.com/SANTOSRAYYYY/asm-web/actions/workflows/test.yml)
 
 ![preview](docs/preview-desktop.png)
@@ -22,6 +23,39 @@
 - The page is Brotli-compressed to **2,616 B**, embedded in a **2,920 B ELF**, and rendered as one **version 40, error-correction L QR code** (2,953 B capacity, 33 B headroom).
 
 The trick: the server never decompresses anything. It sends `Content-Encoding: br` and the browser decompresses the body. Implementing a Brotli decoder in assembly would never fit in 3 KB.
+
+## Personal sites
+
+`asmweb.py personal` turns one `profile.json` into a complete personal page, generates a text portrait from a photo, and builds the same ELF/QR. The page stays self-contained: no images, fonts, or CDNs.
+
+| terminal | brutalist |
+| :---: | :---: |
+| <img src="docs/themes/terminal.png" width="100%" alt="terminal theme"> | <img src="docs/themes/brutalist.png" width="100%" alt="brutalist theme"> |
+| **editorial** | **blueprint** |
+| <img src="docs/themes/editorial.png" width="100%" alt="editorial theme"> | <img src="docs/themes/blueprint.png" width="100%" alt="blueprint theme"> |
+
+Static previews; the boot overlay, scanlines, marquee, glitch, scan line, and reveal animations run in the page.
+
+| Theme | Motion | ELF | Headroom |
+| --- | --- | ---: | ---: |
+| `terminal` | boot overlay / scanlines / glitch / cursor | 2,890 B | 63 B |
+| `brutalist` | marquee / staggered slam / hover invert | 2,879 B | 74 B |
+| `editorial` | fade / rise / slow drift / underline | 2,908 B | 45 B |
+| `blueprint` | scan line / clip reveal / clock | 2,833 B | 120 B |
+
+```bash
+python scripts/asmweb.py themes
+python scripts/asmweb.py personal assets/example/profile.json --theme terminal -o dist/personal --emulate
+python scripts/asmweb.py portrait assets/example/portrait.png --style stencil --width 64 --out portrait.html
+```
+
+The profile has name/handle/role/tagline/bio, About paragraphs, links, projects, and a portrait. Mark three projects `"featured": true`; the four themes show those three. The example profile and portrait are fictional placeholders; replace them. Use `--render-only` to measure while editing. Sitegen always minifies CSS; the HTML `--minify` flag can help or hurt, so measure both.
+
+The portrait is generated locally as text (stencil by default; ASCII, block, and Braille are available). It is a stylized likeness, not a photo; the QR is public. Full details and intake questions: [personal-site playbook](references/personal-site-playbook.md).
+
+<img src="docs/themes/terminal-qr.png" width="220" alt="personal terminal QR">
+
+The QR carries the terminal theme's ELF. Extract it with `asmweb.py extract --html`, or run it on Linux x86_64.
 
 ## Byte budget
 
@@ -49,6 +83,7 @@ The call's return address is the response data start, so no relocations or secti
 
 More detail:
 
+- [Personal-site playbook](references/personal-site-playbook.md)
 - [ELF layout](references/elf-layout.md)
 - [x86_64 syscalls and sockaddr](references/x86_64-linux-syscalls.md)
 - [Animation and compression playbook](references/animation-playbook.md)
@@ -85,6 +120,9 @@ On Windows/macOS, use `--emulate` and the GitHub Actions workflow (Ubuntu) for n
 | `asmweb.py doctor` | Check dependencies, capacity, and supported hosts. |
 | `asmweb.py size PAGE [--minify] [--codec br\|gzip]` | Compressed sizes, exact ELF size, headroom, external-reference warnings. |
 | `asmweb.py build PAGE [-o DIR] [--v40] [--minify] [--emulate] [--length] [--no-drain] [--host 127.0.0.1\|0.0.0.0] [--port N]` | Build `.elf`, `.page.html`, `.png`, `.svg`, `.json`. |
+| `asmweb.py personal PROFILE --theme NAME [-o DIR] [--emulate] [--render-only]` | Render a profile into a personal theme and build the ELF/QR. |
+| `asmweb.py portrait IMAGE [--style stencil\|ascii\|block\|braille] [--width N] [-o OUT]` | Convert a photo/image into a text portrait and optional preview. |
+| `asmweb.py themes` | List the four personal-site themes and their motion. |
 | `asmweb.py extract QR [-o ELF] [--html PAGE] [--inspect]` | Decode a QR; write the ELF/page. Never executes. |
 | `asmweb.py inspect ELF [--html PAGE]` | ELF header, HTTP response, page, syscall disassembly. |
 | `asmweb.py emulate ELF [--page PAGE]` | Run two connections in Unicorn and verify the responses. |
@@ -99,7 +137,7 @@ Clone this repository into your skills directory:
 git clone https://github.com/SANTOSRAYYYY/asm-web.git ~/.agents/skills/asm-web
 ```
 
-On Windows, clone into `%USERPROFILE%\.agents\skills\asm-web`. A new agent session discovers `SKILL.md`; then ask things like "把这个页面做成汇编二维码网站" or "write a 3 KB animated asm web page".
+On Windows, clone into `%USERPROFILE%\.agents\skills\asm-web`. A new agent session discovers `SKILL.md`; then ask things like "把这个页面做成汇编二维码网站", "用我的 profile 做一个 personal site", or "write a 3 KB animated asm web page".
 
 ## Safety
 
@@ -109,7 +147,7 @@ This project produces a Linux executable inside a QR code. **Do not run an ELF f
 - `inspect` is static: ELF header, HTTP response, page, disassembly.
 - `emulate` stays inside Unicorn with simulated syscalls.
 - The generated server is a local demo: HTTP/1.0, no TLS, no authentication, no request parsing, no concurrency. It binds `127.0.0.1` by default; `--host 0.0.0.0` exposes it on the LAN.
-- A QR is public. Do not encode secrets.
+- A QR is public. Do not encode secrets. A text portrait is a likeness; get consent before using someone else's face.
 
 ## Credits
 

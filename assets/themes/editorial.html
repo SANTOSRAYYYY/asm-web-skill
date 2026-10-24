@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{NAME}} · {{ROLE}}</title>
+<style>
+:root{--bg:#0c0c0e;--fg:#f2efe8;--dim:#8d8b84;--a:#ffb86b;--line:#ffffff1a}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--fg);background:radial-gradient(50% 40% at 80% 0,#ffb86b14,transparent 70%),var(--bg);font:16px/1.7 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{width:min(94vw,1040px);margin:auto;padding:0 0 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:26px 0;border-bottom:1px solid var(--line)}
+.logo{font:600 14px/1 Georgia,"Songti SC",serif;letter-spacing:.02em;color:var(--fg);text-decoration:none}
+.logo span{color:var(--a)}
+nav{display:flex;gap:18px;font:600 10px/1 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase}
+nav a{color:var(--dim);text-decoration:none}
+nav a:hover{color:var(--a)}
+.hero{display:grid;grid-template-columns:1fr auto;gap:clamp(28px,6vw,70px);align-items:end;padding:clamp(60px,11vw,120px) 0 56px;border-bottom:1px solid var(--line)}
+.kicker{color:var(--a);font:700 10px/1 ui-monospace,monospace;letter-spacing:.2em}
+h1{margin:18px 0 18px;font:400 clamp(42px,8vw,82px)/1.02 Georgia,"Songti SC","Noto Serif CJK SC",serif;letter-spacing:-.045em;text-wrap:balance}
+.lede{max-width:58ch;margin:0;color:#c9c5bb;font-size:clamp(15px,2.2vw,18px)}
+.meta{margin:18px 0 0;color:var(--dim);font:600 9px/1.4 ui-monospace,monospace;letter-spacing:.1em}
+.portrait-frame{margin:0;padding:12px;border:1px solid var(--line);background:#ffffff04;box-shadow:18px 18px 0 #00000055}
+.portrait{display:block;margin:0;color:var(--a);font:600 8px/1 ui-monospace,monospace;white-space:pre;overflow:hidden}
+.portrait-frame figcaption{margin-top:10px;color:var(--dim);font:600 8px/1.4 ui-monospace,monospace;letter-spacing:.14em}
+section{padding:52px 0;border-bottom:1px solid var(--line)}
+h2{margin:0 0 24px;font:700 10px/1 ui-monospace,monospace;letter-spacing:.2em;color:var(--a)}
+.work{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+.project{display:block;padding:18px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none;transition:opacity .2s}
+.project:hover{opacity:.75}
+.project small{display:block;margin-bottom:10px;color:var(--a);font:600 9px/1 ui-monospace,monospace;letter-spacing:.1em}
+.project h3{margin:0 0 8px;font:600 20px/1.2 Georgia,"Songti SC",serif;letter-spacing:-.02em}
+.project p{margin:0;color:var(--dim);font-size:13px;line-height:1.65}
+.about p{max-width:68ch;margin:0 0 14px;color:#c9c5bb}
+.links{display:flex;flex-wrap:wrap;gap:22px}
+.link{display:inline-flex;gap:8px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:4px;color:var(--fg);text-decoration:none;font:600 11px/1.4 ui-monospace,monospace}
+.link:hover{border-color:var(--a)}
+.link em{color:var(--dim);font:400 11px/1.4 ui-sans-serif,system-ui,sans-serif;font-style:normal}
+.link b{color:var(--a);font-weight:400}
+footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:26px;color:var(--dim);font:600 9px/1.5 ui-monospace,monospace;letter-spacing:.1em}
+footer b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes settle{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes drift{to{transform:translateY(-7px)}}
+.hero .kicker,.hero h1,.hero .lede,.hero .meta{animation:rise .9s both}
+.hero h1{animation-delay:.08s}.hero .lede{animation-delay:.16s}.hero .meta{animation-delay:.24s}
+.portrait-frame{animation:settle 1.1s both,drift 14s 1.2s ease-in-out infinite alternate}
+.project{animation:rise .7s both}
+.project:nth-child(2){animation-delay:.07s}.project:nth-child(3){animation-delay:.14s}.project:nth-child(4){animation-delay:.21s}.project:nth-child(5){animation-delay:.28s}
+@media(max-width:760px){.hero{grid-template-columns:1fr;align-items:start}.portrait-frame{width:fit-content}.work{grid-template-columns:1fr}header{flex-wrap:wrap}.portrait{font-size:5px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><a class="logo" href="#">{{NAME}}<span> / </span>{{HANDLE}}</a><nav><a href="#work">Work</a><a href="#about">About</a><a href="#contact">Contact</a></nav></header>
+<section class="hero">
+  <div><p class="kicker">{{ROLE}}</p><h1>{{TAGLINE}}</h1><p class="lede">{{BIO}}</p><p class="meta">{{LOCATION}} · {{STATUS}}</p></div>
+  <figure class="portrait-frame">{{PORTRAIT}}<figcaption>FIG. 01 — {{HANDLE}}</figcaption></figure>
+</section>
+<section id="work"><h2>SELECTED WORK</h2><div class="work">{{FEATURED_PROJECTS}}</div></section>
+<section id="about" class="about"><h2>ABOUT</h2>{{ABOUT}}</section>
+<section id="contact"><h2>CONTACT</h2><div class="links">{{LINKS}}</div></section>
+<footer><span>{{NAME}}</span><span><b id="clock">--:--:--</b> · {{YEAR}}</span></footer>
+</div>
+{{CLOCK_SCRIPT}}
+</body>
+</html>

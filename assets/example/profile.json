@@ -1,0 +1,75 @@
+{
+  "name": "林一",
+  "handle": "LIN YI",
+  "role": "systems engineer · low-level & web",
+  "tagline": "把系统写到接近金属。",
+  "bio": "我做底层系统、网络协议和奇怪的 Web 实验。白天写 C、Go 和一点汇编，晚上研究怎么把整个网站塞进一张二维码。现在在上海，开放远程合作。",
+  "location": "SHANGHAI · UTC+8",
+  "status": "OPEN TO WORK",
+  "links": [
+    {
+      "label": "GitHub",
+      "url": "https://github.com/linyi",
+      "note": "开源与实验"
+    },
+    {
+      "label": "QR-Server",
+      "url": "https://example.com/qr-server",
+      "note": "3KB 网站实验"
+    },
+    {
+      "label": "Email",
+      "url": "mailto:hi@linyi.dev",
+      "note": "聊点有意思的"
+    }
+  ],
+  "projects": [
+    {
+      "title": "QR-Server",
+      "desc": "把一个 HTTP 服务器和整页网站压进 3KB 二维码。x86_64 汇编、Brotli、ELF，以及一个浏览器查看器。",
+      "url": "https://example.com/qr-server",
+      "featured": true
+    },
+    {
+      "title": "Packet Garden",
+      "desc": "用 eBPF 和 Go 追踪本机网络流量，做成可交互的实时可视化。没有抓包器，只有一棵会长大的树。",
+      "url": "https://example.com/packet-garden",
+      "featured": true
+    },
+    {
+      "title": "Tiny WASM Runtime",
+      "desc": "一个 4KB 的 WebAssembly 解释器，用来在嵌入式设备上跑小工具。支持整数指令和线性内存。",
+      "url": "https://example.com/tiny-wasm",
+      "featured": true
+    },
+    {
+      "title": "Font Tools",
+      "desc": "批量子集化、字体审计和 CJK 字形覆盖检查，给中文 Web 字体减重。命令行优先，脚本友好。",
+      "url": "https://example.com/font-tools"
+    },
+    {
+      "title": "Notes",
+      "desc": "关于系统、网络、前端性能和奇怪 bug 的长期笔记。写得不勤，但每篇都尽量能复现。",
+      "url": "https://example.com/notes"
+    }
+  ],
+  "skills": [
+    "x86_64 ASM",
+    "C",
+    "Go",
+    "eBPF",
+    "Linux",
+    "TypeScript",
+    "CSS",
+    "Brotli"
+  ],
+  "portrait": "portrait.png",
+  "portrait_style": "stencil",
+  "portrait_width": 64,
+  "portrait_threshold": 112,
+  "about": [
+    "我是林一，一名系统工程师。我喜欢把复杂的东西拆到能看见边界的地方：从系统调用、TCP 状态机，到一个网页到底为什么这么慢。",
+    "我也做 Web。不是因为它简单，而是因为它离人最近。最近在做的实验是把服务器、页面和二维码压到同一个 3KB 预算里。",
+    "不接急单，但很愿意聊底层、开发者工具和奇怪的想法。"
+  ]
+}

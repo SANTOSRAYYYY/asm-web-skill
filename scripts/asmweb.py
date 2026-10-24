@@ -30,7 +30,7 @@ PHDR_SIZE = 56
 ENTRY_OFF = 0x78
 CALL_SIZE = 5
 DATA_OFF = ENTRY_OFF + CALL_SIZE
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8080
 ROOT = Path(__file__).resolve().parent.parent
@@ -926,38 +926,22 @@ def cmd_size(args) -> int:
     return 0 if fit >= 0 else 2
 
 
-def cmd_build(args) -> int:
-    if not 1 <= args.scale <= 40:
-        fail("--scale must be between 1 and 40")
-    if not 0 <= args.border <= 32:
-        fail("--border must be between 0 and 32")
-    if not 1 <= args.port <= 65535:
-        fail("--port must be between 1 and 65535")
-    if args.host == "0.0.0.0":
-        print("warning: --host 0.0.0.0 exposes the page to your LAN", file=sys.stderr)
-    source = Path(args.page)
-    if not source.is_file():
-        fail(f"page not found: {source}")
-    raw = source.read_bytes()
-    try:
-        built = build_page(
-            raw,
-            codec=args.codec,
-            minify=args.minify,
-            host=args.host,
-            port=args.port,
-            include_length=args.length,
-            drain=not args.no_drain,
-        )
-    except Overflow as exc:
-        _print_overflow(exc, args.host)
-        return 2
-    except BuildError as exc:
-        fail(str(exc))
-
-    out_dir = Path(args.out)
+def finalize_build(
+    built: Built,
+    *,
+    source_label: str,
+    out_dir: Path,
+    name: str,
+    v40: bool,
+    scale: int,
+    border: int,
+    emulate: bool,
+    heading: str = "asm-web build",
+    extra_manifest: dict | None = None,
+) -> dict:
+    out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    name = re.sub(r"[^A-Za-z0-9._-]+", "-", args.name or source.stem).strip("-._") or "server"
+    name = re.sub(r"[^A-Za-z0-9._-]+", "-", name).strip("-._") or "server"
     elf_path = out_dir / f"{name}.elf"
     page_path = out_dir / f"{name}.page.html"
     png_path = out_dir / f"{name}.png"
@@ -967,15 +951,15 @@ def cmd_build(args) -> int:
     elf_path.write_bytes(built.elf)
     page_path.write_bytes(built.page)
     try:
-        qr = make_qr(built.elf, args.v40)
+        qr = make_qr(built.elf, v40)
     except BuildError as exc:
         fail(str(exc))
-    qr.save(png_path, scale=args.scale, border=args.border)
-    qr.save(svg_path, scale=args.scale, border=args.border)
+    qr.save(png_path, scale=scale, border=border)
+    qr.save(svg_path, scale=scale, border=border)
     modules = int(qr.symbol_size(scale=1, border=0)[0])
-    png_px = int(qr.symbol_size(scale=args.scale, border=args.border)[0])
+    png_px = int(qr.symbol_size(scale=scale, border=border)[0])
 
-    page_out, meta = extract_page(built.elf)
+    page_out, _meta = extract_page(built.elf)
     if page_out != built.page:
         fail("internal check failed: embedded page does not match the source")
     if module_available("zxingcpp") and module_available("PIL"):
@@ -988,7 +972,7 @@ def cmd_build(args) -> int:
     manifest = {
         "tool": f"asm-web {VERSION}",
         "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "source": str(source),
+        "source": source_label,
         "page_bytes": len(built.page),
         "page_sha256": digest(built.page),
         "minified": built.minified,
@@ -1026,20 +1010,22 @@ def cmd_build(args) -> int:
             "svg": str(svg_path),
         },
     }
-    if args.emulate:
+    if extra_manifest:
+        manifest.update(extra_manifest)
+    if emulate:
         try:
             emu = emulate_elf(built.elf, expected_page=built.page, expected_port=built.port)
             manifest["emulation"] = emu
         except EmulationError as exc:
             fail(f"emulation check failed: {exc}")
     manifest_path.write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        json.dumps(manifest, indent=2, ensure_ascii=False) + chr(10),
         encoding="utf-8",
     )
 
     used = len(built.elf) / CAPACITY * 100
-    print("asm-web build")
-    print(f"  source    {source.name:<30} {len(built.page):>9,} B")
+    print(heading)
+    print(f"  source    {source_label:<30} {len(built.page):>9,} B")
     print(f"  payload   {len(built.payload):>9,} B  {built.codec} q11")
     print(
         f"  ELF       {len(built.elf):>9,} B  "
@@ -1059,13 +1045,203 @@ def cmd_build(args) -> int:
     refs = external_refs(built.page)
     if refs:
         print(f"  warning   external references: {', '.join(refs)}")
-    if args.emulate:
+    if emulate:
         print(
             f"  emulate   PASS  {manifest['emulation']['connections']} connections, "
             f"{manifest['emulation']['status']}  "
             f"{manifest['emulation']['response_bytes']:,} B response, "
             f"{manifest['emulation']['page_bytes']:,} B page"
         )
+    return manifest
+
+
+def validate_build_args(args) -> None:
+    if not 1 <= args.scale <= 40:
+        fail("--scale must be between 1 and 40")
+    if not 0 <= args.border <= 32:
+        fail("--border must be between 0 and 32")
+    if not 1 <= args.port <= 65535:
+        fail("--port must be between 1 and 65535")
+    if args.host == "0.0.0.0":
+        print("warning: --host 0.0.0.0 exposes the page to your LAN", file=sys.stderr)
+
+
+def cmd_build(args) -> int:
+    validate_build_args(args)
+    source = Path(args.page)
+    if not source.is_file():
+        fail(f"page not found: {source}")
+    raw = source.read_bytes()
+    try:
+        built = build_page(
+            raw,
+            codec=args.codec,
+            minify=args.minify,
+            host=args.host,
+            port=args.port,
+            include_length=args.length,
+            drain=not args.no_drain,
+        )
+    except Overflow as exc:
+        _print_overflow(exc, args.host)
+        return 2
+    except BuildError as exc:
+        fail(str(exc))
+    finalize_build(
+        built,
+        source_label=str(source),
+        out_dir=Path(args.out),
+        name=args.name or source.stem,
+        v40=args.v40,
+        scale=args.scale,
+        border=args.border,
+        emulate=args.emulate,
+    )
+    return 0
+
+
+def cmd_personal(args) -> int:
+    validate_build_args(args)
+    try:
+        import sitegen
+    except ImportError as exc:
+        fail(f"personal-site module is unavailable: {exc}")
+    profile_path = Path(args.profile)
+    try:
+        profile = sitegen.load_profile(profile_path)
+        page, meta = sitegen.render_theme(
+            profile,
+            args.theme,
+            portrait_style=args.portrait_style,
+            portrait_width=args.portrait_width,
+            portrait_threshold=args.portrait_threshold,
+        )
+    except sitegen.SiteError as exc:
+        fail(str(exc))
+
+    name = re.sub(r"[^A-Za-z0-9._-]+", "-", args.name or args.theme).strip("-._") or args.theme
+    out_dir = Path(args.out)
+    try:
+        built = build_page(
+            page,
+            codec=args.codec,
+            minify=args.minify,
+            host=args.host,
+            port=args.port,
+            include_length=args.length,
+            drain=not args.no_drain,
+        )
+    except Overflow as exc:
+        if args.render_only:
+            out_dir.mkdir(parents=True, exist_ok=True)
+            page_path = out_dir / f"{name}.page.html"
+            page_path.write_bytes(page)
+            print(f"rendered  {page_path}", file=sys.stderr)
+        _print_overflow(exc, args.host)
+        return 2
+    except BuildError as exc:
+        fail(str(exc))
+
+    if args.render_only:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        page_path = out_dir / f"{name}.page.html"
+        page_path.write_bytes(built.page)
+        qr = make_qr(built.elf, args.v40)
+        print("asm-web personal (render only)")
+        print(f"  theme     {args.theme}  ({meta['motion']})")
+        print(f"  page      {len(built.page):,} B")
+        print(f"  payload   {len(built.payload):,} B  {built.codec} q11")
+        print(
+            f"  ELF       {len(built.elf):,} B / {CAPACITY:,} B  "
+            f"({built.headroom:,} B headroom)"
+        )
+        print(
+            f"  QR        version {qr.version}-{str(qr.error).upper()} for this size"
+        )
+        print(f"  file      {page_path}")
+        refs = external_refs(built.page)
+        if refs:
+            print(f"  warning   external references: {', '.join(refs)}")
+        return 0
+
+    finalize_build(
+        built,
+        source_label=f"{profile_path} [{args.theme}]",
+        out_dir=out_dir,
+        name=name,
+        v40=args.v40,
+        scale=args.scale,
+        border=args.border,
+        emulate=args.emulate,
+        heading="asm-web personal",
+        extra_manifest={
+            "theme": args.theme,
+            "motion": meta["motion"],
+            "profile": str(profile_path),
+            "portrait": meta["portrait"],
+        },
+    )
+    return 0
+
+
+def cmd_portrait(args) -> int:
+    try:
+        import sitegen
+    except ImportError as exc:
+        fail(f"personal-site module is unavailable: {exc}")
+    image = Path(args.image)
+    if not image.is_file():
+        fail(f"image not found: {image}")
+    try:
+        art, meta = sitegen.portrait_art(
+            {
+                "name": "PORTRAIT",
+                "handle": "PREVIEW",
+                "role": "",
+                "tagline": "",
+                "bio": "",
+                "portrait": str(image.resolve()),
+                "_dir": str(image.resolve().parent),
+            },
+            args.style,
+            args.width,
+            args.threshold,
+        )
+    except sitegen.SiteError as exc:
+        fail(str(exc))
+    print("asm-web portrait")
+    print(f"  source    {image}")
+    print(
+        f"  style     {meta['style']}  {meta['width']}x{meta['height']} chars  "
+        f"threshold {meta['threshold']}"
+    )
+    print(f"  art       {meta['chars']:,} chars, {meta['bytes']:,} UTF-8 bytes")
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        if out.suffix.lower() == ".html":
+            out.write_text(
+                sitegen.portrait_preview(image, meta["style"], meta["width"], meta["threshold"]),
+                encoding="utf-8",
+            )
+        else:
+            out.write_text(art + chr(10), encoding="utf-8")
+        print(f"  file      {out}")
+    else:
+        print()
+        print(art)
+    return 0
+
+
+def cmd_themes(args) -> int:
+    try:
+        import sitegen
+    except ImportError as exc:
+        fail(f"personal-site module is unavailable: {exc}")
+    print("asm-web themes")
+    for key, meta in sitegen.THEMES.items():
+        print(f"  {key:<10} {meta['motion']}")
+        print(f"             {meta['description']}")
     return 0
 
 
@@ -1159,6 +1335,8 @@ def cmd_doctor(args) -> int:
     print(f"  layout    {EHDR_SIZE + PHDR_SIZE} B headers + {CALL_SIZE} B call + "
           f"HTTP + payload + asm <= {CAPACITY:,} B")
     print("  hosts     127.0.0.1 (default) or 0.0.0.0")
+    themes_ok = (ROOT / "assets" / "themes").is_dir()
+    print(f"  personal  {'ready' if themes_ok else 'missing themes'}  (profile + 4 themes + portrait)")
     if missing_required:
         print("  install   python -m pip install segno brotli keystone-engine")
         return 1
@@ -1194,6 +1372,49 @@ def build_parser() -> argparse.ArgumentParser:
     build.add_argument("--border", type=int, default=4)
     build.add_argument("--emulate", action="store_true", help="verify with Unicorn")
     build.set_defaults(func=cmd_build)
+
+    personal = sub.add_parser(
+        "personal",
+        help="render a profile/theme into a personal site, then build the ELF/QR",
+    )
+    personal.add_argument("profile", help="profile.json describing the person and content")
+    personal.add_argument(
+        "--theme",
+        choices=("terminal", "brutalist", "editorial", "blueprint"),
+        default="terminal",
+    )
+    personal.add_argument(
+        "--portrait-style",
+        choices=("stencil", "ascii", "block", "braille"),
+        help="override profile portrait_style",
+    )
+    personal.add_argument("--portrait-width", type=int, help="override portrait width")
+    personal.add_argument("--portrait-threshold", type=int, help="override portrait threshold")
+    personal.add_argument("--render-only", action="store_true", help="render the page and report sizes without ELF/QR")
+    personal.add_argument("-o", "--out", default="dist")
+    personal.add_argument("-n", "--name")
+    personal.add_argument("--codec", choices=("brotli", "gzip"), default="brotli")
+    personal.add_argument("--minify", action="store_true")
+    personal.add_argument("--host", choices=("127.0.0.1", "0.0.0.0"), default=DEFAULT_HOST)
+    personal.add_argument("--port", type=int, default=DEFAULT_PORT)
+    personal.add_argument("--length", action="store_true")
+    personal.add_argument("--no-drain", action="store_true")
+    personal.add_argument("--v40", action="store_true")
+    personal.add_argument("--scale", type=int, default=8)
+    personal.add_argument("--border", type=int, default=4)
+    personal.add_argument("--emulate", action="store_true")
+    personal.set_defaults(func=cmd_personal)
+
+    portrait = sub.add_parser("portrait", help="convert a photo into a text portrait")
+    portrait.add_argument("image")
+    portrait.add_argument("--style", choices=("stencil", "ascii", "block", "braille"), default="stencil")
+    portrait.add_argument("--width", type=int, default=64)
+    portrait.add_argument("--threshold", type=int, default=112)
+    portrait.add_argument("-o", "--out", help="write art (.txt) or a preview (.html)")
+    portrait.set_defaults(func=cmd_portrait)
+
+    themes = sub.add_parser("themes", help="list personal-site themes and their motion")
+    themes.set_defaults(func=cmd_themes)
 
     size = sub.add_parser("size", help="report page and ELF sizes against the budget")
     size.add_argument("page")
