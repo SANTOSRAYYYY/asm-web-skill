@@ -6,7 +6,7 @@ A static browser viewer for asm-web QR codes. It decodes the QR to an ELF, extra
 
 ## Live
 
-https://santosrayyyy.github.io/asm-web/
+https://santosrayyyy.github.io/asm-web-skill/
 
 The viewer is a PWA: open it on a phone, tap **扫描二维码**, and point the camera at an asm-web QR. Camera access needs HTTPS (GitHub Pages) or localhost. Upload and drag/drop work without a camera.
 
@@ -48,7 +48,7 @@ npm run build
 
 ## Deploy
 
-`.github/workflows/pages.yml` deploys the `viewer/` directory to GitHub Pages on changes. The Pages URL is expected to be `https://santosrayyyy.github.io/asm-web/`.
+`.github/workflows/pages.yml` deploys the `viewer/` directory to GitHub Pages on changes. The Pages URL is expected to be `https://santosrayyyy.github.io/asm-web-skill/`.
 
 ## Flow
 

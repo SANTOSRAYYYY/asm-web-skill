@@ -123,12 +123,12 @@ python scripts/asmweb.py inspect /tmp/card.elf
 
 - `--emulate` runs two connections in Unicorn and compares the served page.
 - On Linux x86_64: `chmod +x dist/personal/terminal/terminal.elf && ./dist/personal/terminal/terminal.elf`, then open `http://127.0.0.1:8080`.
-- The QR is a data QR. Use the hosted viewer (https://santosrayyyy.github.io/asm-web/) to scan/upload it, `extract --html`/`inspect`, or run the ELF on Linux. Camera needs HTTPS/localhost.
+- The QR is a data QR. Use the hosted viewer (https://santosrayyyy.github.io/asm-web-skill/) to scan/upload it, `extract --html`/`inspect`, or run the ELF on Linux. Camera needs HTTPS/localhost.
 - The example profile and portrait are fictional placeholders. Replace `assets/example/profile.json` and `assets/example/portrait.png` with the user's content.
 
 ## Viewer
 
-- Hosted: https://santosrayyyy.github.io/asm-web/
+- Hosted: https://santosrayyyy.github.io/asm-web-skill/
 - Scan a QR with the camera, upload a QR image, drag/drop, or open an `.elf`.
 - jsQR decodes the QR, the viewer finds the HTTP response in the ELF, brotli-dec-wasm streams the payload, and the page renders in a sandboxed iframe.
 - The ELF is never executed. The iframe has no same-origin and a CSP that blocks external network/forms/popups.

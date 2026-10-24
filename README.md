@@ -1,6 +1,8 @@
-# asm-web
+# asm-web-skill
 
-**A whole animated website + HTTP server inside one QR code.**
+**A ZCode / agent skill for building a whole animated website + HTTP server inside one QR code.**
+
+The skill is the product: `SKILL.md`, the `asmweb.py` CLI, four personal-site themes, and a browser QR viewer. `asm-web` is the engine name; this repository was renamed from `asm-web` so it is easier to find as a skill.
 
 把会动的网页、113 字节的汇编服务器和一张 v40 二维码，塞进 **2,920 字节**。
 
@@ -8,9 +10,10 @@
 ![asm](https://img.shields.io/badge/x86__64_asm-113_B-5ce1ff)
 ![QR](https://img.shields.io/badge/QR-v40--L-c084fc)
 ![themes](https://img.shields.io/badge/themes-4-ff9e64)
+![skill](https://img.shields.io/badge/ZCode-skill-ff9e64)
 
-**Packaged skill:** [asm-web-v1.1.0.zip](https://github.com/SANTOSRAYYYY/asm-web/releases/download/v1.1.0/asm-web-v1.1.0.zip) — unzip it so the folder lands at `~/.agents/skills/asm-web`.
-[![test](https://github.com/SANTOSRAYYYY/asm-web/actions/workflows/test.yml/badge.svg)](https://github.com/SANTOSRAYYYY/asm-web/actions/workflows/test.yml)
+**Packaged skill:** [asm-web-skill-v1.2.0.zip](https://github.com/SANTOSRAYYYY/asm-web-skill/releases/download/v1.2.0/asm-web-skill-v1.2.0.zip) — unzip it so the folder lands at `~/.agents/skills/asm-web-skill`.
+[![test](https://github.com/SANTOSRAYYYY/asm-web-skill/actions/workflows/test.yml/badge.svg)](https://github.com/SANTOSRAYYYY/asm-web-skill/actions/workflows/test.yml)
 
 ![preview](docs/preview-desktop.png)
 
@@ -61,7 +64,7 @@ The QR carries the terminal theme's ELF. Open the viewer and scan it, extract it
 
 ## Viewer
 
-**https://santosrayyyy.github.io/asm-web/**
+**https://santosrayyyy.github.io/asm-web-skill/**
 
 Scan the QR, upload the PNG, or open the `.elf`; the viewer decodes it in the browser and renders the page in a sandboxed iframe. **The ELF is never executed.**
 
@@ -149,10 +152,10 @@ If you built with `--minify`, compare emulation against `dist/index.page.html` (
 
 ## Use as a ZCode / agent skill
 
-Download the packaged zip from [Releases](https://github.com/SANTOSRAYYYY/asm-web/releases), or clone this repository into your skills directory:
+Download the packaged zip from [Releases](https://github.com/SANTOSRAYYYY/asm-web-skill/releases), or clone this repository into your skills directory:
 
 ```bash
-git clone https://github.com/SANTOSRAYYYY/asm-web.git ~/.agents/skills/asm-web
+git clone https://github.com/SANTOSRAYYYY/asm-web-skill.git ~/.agents/skills/asm-web-skill
 ```
 
 On Windows, clone into `%USERPROFILE%\.agents\skills\asm-web`. A new agent session discovers `SKILL.md`; then ask things like "把这个页面做成汇编二维码网站", "用我的 profile 做一个 personal site", or "write a 3 KB animated asm web page".
