@@ -1,0 +1,48 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Doctor
+        run: python scripts/asmweb.py doctor
+
+      - name: Build, verify with Unicorn
+        run: python scripts/asmweb.py build assets/example/index.html -o dist --v40 --minify --emulate
+
+      - name: Extract and inspect QR payload
+        run: |
+          python scripts/asmweb.py extract dist/index.png -o dist/extracted.elf --html dist/extracted.html
+          cmp dist/index.elf dist/extracted.elf
+          cmp dist/index.page.html dist/extracted.html
+          python scripts/asmweb.py inspect dist/index.elf --html dist/inspected.html --no-disasm
+          cmp dist/index.page.html dist/inspected.html
+
+      - name: Run natively on Linux
+        run: |
+          chmod +x dist/index.elf
+          ./dist/index.elf &
+          pid=$!
+          sleep 0.5
+          python scripts/native_test.py dist/index.page.html
+          kill $pid || true
+
+      - name: Show ELF
+        run: |
+          file dist/index.elf
+          readelf -h -l dist/index.elf
