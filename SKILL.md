@@ -1,6 +1,6 @@
 ---
 name: asm-web
-description: Build a minimal, self-contained animated website served by a hand-written x86_64 assembly HTTP server, then pack the entire ELF into one version-40-L QR code (2,953-byte hard limit). Also builds personal sites from a profile with four animated themes (terminal, brutalist, editorial, blueprint) and a text portrait generated from a photo. Use whenever the user mentions 汇编写网站, 汇编 HTTP 服务器, 最小体积网站, 3KB 网站, 二维码里的 ELF, qr-server, personal website, 个人网站, 文字肖像, ASCII portrait, size coding, asm web, tiny web server, ELF in QR, or wants to fit a page/ELF into a QR. Also use for extracting, inspecting, or emulating such a QR/ELF safely.
+description: Build a minimal, self-contained animated website served by a hand-written x86_64 assembly HTTP server, then pack the entire ELF into one version-40-L QR code (2,953-byte hard limit). Also builds personal sites from a profile with four animated themes (terminal, brutalist, editorial, blueprint), a text portrait generated from a photo, and a browser QR viewer. Use whenever the user mentions 汇编写网站, 汇编 HTTP 服务器, 最小体积网站, 3KB 网站, 二维码里的 ELF, qr-server, personal website, 个人网站, 文字肖像, ASCII portrait, size coding, asm web, tiny web server, ELF in QR, or wants to fit a page/ELF into a QR. Also use for extracting, inspecting, or emulating such a QR/ELF safely.
 ---
 
 # asm-web
@@ -82,7 +82,9 @@ Text portraits:
 
 Iterate with `--render-only`; it writes the exact page and reports the ELF size without producing a QR. Open `dist/personal/<theme>/<theme>.page.html` in a browser to see the animation. `personal` uses the page as-is by default: **do not add `--minify`** unless you measured both; sitegen already minifies CSS, and the HTML minifier can increase the Brotli payload.
 
-A normal QR scanner sees binary; use `extract --html` or `inspect` to recover the page, or run the ELF on Linux. A portable browser viewer/PWA is not part of this build yet.
+A normal QR scanner sees binary. The repo includes a static browser viewer at https://santosrayyyy.github.io/asm-web/ (source in `viewer/`): it scans/uploads a QR or opens an ELF, extracts the page, and renders it in a sandboxed iframe without executing the ELF. Camera needs HTTPS/localhost; upload works without it. `extract --html` and native Linux remain the offline options.
+
+Viewer: the hosted app and `viewer/` source implement QR → ELF → Brotli → iframe. The ELF is never executed; the iframe has `sandbox="allow-scripts"` (no same-origin) and a CSP that blocks external requests. To run locally: `cd viewer && python -m http.server 8088`. To rebuild: `cd viewer && npm ci && npm run build`. The built assets are committed; Pages deploys `viewer/` via `.github/workflows/pages.yml`.
 
 Full details: `references/personal-site-playbook.md`.
 

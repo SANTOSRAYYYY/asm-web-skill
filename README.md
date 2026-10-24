@@ -55,7 +55,23 @@ The portrait is generated locally as text (stencil by default; ASCII, block, and
 
 <img src="docs/themes/terminal-qr.png" width="220" alt="personal terminal QR">
 
-The QR carries the terminal theme's ELF. Extract it with `asmweb.py extract --html`, or run it on Linux x86_64.
+The QR carries the terminal theme's ELF. Open the viewer and scan it, extract it with `asmweb.py extract --html`, or run it on Linux x86_64.
+
+## Viewer
+
+**https://santosrayyyy.github.io/asm-web/**
+
+Scan the QR, upload the PNG, or open the `.elf`; the viewer decodes it in the browser and renders the page in a sandboxed iframe. **The ELF is never executed.**
+
+![viewer](docs/viewer-home.png)
+
+![decoded page](docs/viewer-result.png)
+
+- jsQR → find the HTTP response inside the ELF → brotli-dec-wasm → sandboxed iframe.
+- Camera needs HTTPS (GitHub Pages) or localhost; upload and drag/drop work without a camera.
+- The page runs with a CSP and without `allow-same-origin`; no external network, forms, popups, or top navigation.
+- Source and build: [`viewer/`](viewer/); deploy: [`pages.yml`](.github/workflows/pages.yml); local: `cd viewer && python -m http.server 8088`.
+- A normal phone camera cannot open a data QR directly. Use the viewer, `extract --html`, or the native ELF on Linux.
 
 ## Byte budget
 

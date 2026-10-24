@@ -5,3 +5,6 @@ dist/
 .tmp/
 .DS_Store
 *.log
+viewer/node_modules/
+viewer/*.map
+viewer/.cache/

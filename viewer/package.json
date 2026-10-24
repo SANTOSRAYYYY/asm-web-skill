@@ -1,0 +1,17 @@
+{
+  "name": "asm-web-viewer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser viewer for asm-web QR codes: QR -> ELF -> Brotli -> sandboxed iframe. The ELF is never executed.",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --minify --format=esm --target=es2020 --outfile=viewer.js --loader:.wasm=file --asset-names=assets/[name] --legal-comments=eof"
+  },
+  "dependencies": {
+    "brotli-dec-wasm": "2.3.2",
+    "jsqr": "1.4.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

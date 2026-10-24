@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05060a">
+<title>ASM/WEB Viewer · QR → ELF → page</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="./">ASM/WEB <span>VIEWER</span></a>
+  <span class="badge">DECODER · NOT EMULATOR</span>
+</header>
+<main>
+  <section id="home" class="view">
+    <p class="eyebrow">SCAN A QR · OPEN A WEBSITE</p>
+    <h1>一张二维码里<br><em>装着一个网站。</em></h1>
+    <p class="lede">扫描 asm-web 二维码：浏览器解码 ELF、解开 Brotli，在 sandbox iframe 里渲染页面。<b>ELF 不会被执行。</b></p>
+    <div class="actions">
+      <button id="scan-btn" class="primary">扫描二维码</button>
+      <label class="button">上传二维码<input id="qr-file" type="file" accept="image/*" hidden></label>
+      <label class="button">打开 ELF<input id="elf-file" type="file" accept=".elf,application/octet-stream" hidden></label>
+      <button id="demo-btn" class="ghost">试试示例</button>
+    </div>
+    <div id="drop" class="drop">也可以把二维码图片或 .elf 拖到这里</div>
+    <p id="home-status" class="status" role="status" hidden></p>
+    <div class="demo-card">
+      <img src="./demo-qr.png" alt="asm-web demo QR" width="160" height="160">
+      <div>
+        <b>DEMO · TERMINAL</b>
+        <p>一张 2,890 B 的 personal-site 二维码。点“试试示例”，或上传这张 PNG。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="scan" class="view" hidden>
+    <p class="eyebrow">CAMERA</p>
+    <h2>把二维码放进框里</h2>
+    <div class="video-wrap">
+      <video id="video" playsinline muted autoplay></video>
+      <div class="reticle" aria-hidden="true"></div>
+    </div>
+    <p id="scan-status" class="status" role="status">正在启动摄像头…</p>
+    <div class="actions"><button id="scan-stop" class="ghost">取消</button></div>
+  </section>
+
+  <section id="result" class="view" hidden>
+    <div class="result-head">
+      <button id="back-btn" class="ghost">← 返回</button>
+      <div id="result-title" class="result-title">—</div>
+      <div class="result-actions">
+        <button id="fullscreen-btn" class="ghost">全屏</button>
+        <button id="download-btn" class="ghost">下载 ELF</button>
+        <button id="download-html-btn" class="ghost">下载页面</button>
+      </div>
+    </div>
+    <div id="result-meta" class="meta"></div>
+    <iframe id="page" title="decoded page" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
+    <p class="footnote">页面在 sandbox iframe 中渲染；CSP 禁止外部网络。ELF 没有被执行。</p>
+  </section>
+</main>
+<footer class="foot">
+  <span>asm-web viewer</span>
+  <span>QR → ELF → Brotli → sandboxed HTML</span>
+</footer>
+<p id="test-info" class="sr-only" aria-hidden="true"></p>
+<script type="module" src="./viewer.js"></script>
+</body>
+</html>

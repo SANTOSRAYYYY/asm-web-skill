@@ -123,12 +123,21 @@ python scripts/asmweb.py inspect /tmp/card.elf
 
 - `--emulate` runs two connections in Unicorn and compares the served page.
 - On Linux x86_64: `chmod +x dist/personal/terminal/terminal.elf && ./dist/personal/terminal/terminal.elf`, then open `http://127.0.0.1:8080`.
-- The QR is a data QR. A normal scanner sees binary; use `extract --html`/`inspect`, or run the ELF on Linux. A portable browser viewer/PWA is not part of this build yet; the page snapshot is the local preview.
+- The QR is a data QR. Use the hosted viewer (https://santosrayyyy.github.io/asm-web/) to scan/upload it, `extract --html`/`inspect`, or run the ELF on Linux. Camera needs HTTPS/localhost.
 - The example profile and portrait are fictional placeholders. Replace `assets/example/profile.json` and `assets/example/portrait.png` with the user's content.
+
+## Viewer
+
+- Hosted: https://santosrayyyy.github.io/asm-web/
+- Scan a QR with the camera, upload a QR image, drag/drop, or open an `.elf`.
+- jsQR decodes the QR, the viewer finds the HTTP response in the ELF, brotli-dec-wasm streams the payload, and the page renders in a sandboxed iframe.
+- The ELF is never executed. The iframe has no same-origin and a CSP that blocks external network/forms/popups.
+- Local: `cd viewer && python -m http.server 8088`. Build: `npm ci && npm run build`. Deploy: `.github/workflows/pages.yml`.
+- Camera requires HTTPS or localhost; upload works without a camera.
 
 ## Current limits
 
 - 2,953 B total ELF; the themes fit 3 featured projects + portrait. A simple 5-project page can fit with a lighter layout (tested separately), but the four animated themes use 3.
 - No images, web fonts, CDNs, or external requests in the page. The portrait is text.
 - The server is a local demo: HTTP/1.0, no TLS/auth/request parsing, no keep-alive.
-- The per-card browser viewer/PWA is not included yet; the QR is for native Linux or extraction.
+- The static browser viewer is in `viewer/` and deployed to GitHub Pages; it never executes the ELF. Camera needs HTTPS/localhost; upload/drag/drop works without a camera.
