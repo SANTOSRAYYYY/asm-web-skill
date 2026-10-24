@@ -78,7 +78,7 @@ Text portraits:
 - `stencil` is the default: 1-bit `#`, best recognizability per byte (~190-260 B compressed). `ascii` is more "text art"; `block` can muddy faces; `braille` is small and font-dependent.
 - A bitmap + JS renderer was measured and is worse than pre-rendered text; do not add it.
 - Use `aria-hidden` (the templates do) and keep the name/role as real text.
-- Tune `--threshold`, width (48-72), and `--portrait-invert` for light themes; preview before building.
+- Tune the threshold and width (48-72); set `portrait_invert` in the profile for light themes. Preview before building.
 
 Iterate with `--render-only`; it writes the exact page and reports the ELF size without producing a QR. Open `dist/personal/<theme>/<theme>.page.html` in a browser to see the animation. `personal` uses the page as-is by default: **do not add `--minify`** unless you measured both; sitegen already minifies CSS, and the HTML minifier can increase the Brotli payload.
 
