@@ -8,6 +8,8 @@
 ![asm](https://img.shields.io/badge/x86__64_asm-113_B-5ce1ff)
 ![QR](https://img.shields.io/badge/QR-v40--L-c084fc)
 ![themes](https://img.shields.io/badge/themes-4-ff9e64)
+
+**Packaged skill:** [asm-web-v1.1.0.zip](https://github.com/SANTOSRAYYYY/asm-web/releases/download/v1.1.0/asm-web-v1.1.0.zip) — unzip it so the folder lands at `~/.agents/skills/asm-web`.
 [![test](https://github.com/SANTOSRAYYYY/asm-web/actions/workflows/test.yml/badge.svg)](https://github.com/SANTOSRAYYYY/asm-web/actions/workflows/test.yml)
 
 ![preview](docs/preview-desktop.png)
@@ -147,7 +149,7 @@ If you built with `--minify`, compare emulation against `dist/index.page.html` (
 
 ## Use as a ZCode / agent skill
 
-Clone this repository into your skills directory:
+Download the packaged zip from [Releases](https://github.com/SANTOSRAYYYY/asm-web/releases), or clone this repository into your skills directory:
 
 ```bash
 git clone https://github.com/SANTOSRAYYYY/asm-web.git ~/.agents/skills/asm-web
